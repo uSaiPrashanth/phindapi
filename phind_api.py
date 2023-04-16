@@ -55,22 +55,21 @@ class browser():
         self.driver.get('https://staging.phind.com/search?q='+query)
         self.wait = WebDriverWait(self.driver, timeout)
         try:
-            self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.col-lg-10 > div:nth-child(2) > div:nth-child(4) > div:nth-child(1) > div:nth-child(1) > span:nth-child(2)')))
-            search_results=''
-            while search_results=='':
-                search_results = self.driver.find_element(By.CSS_SELECTOR, '.col-lg-10 > div:nth-child(2) > div:nth-child(4) > div:nth-child(1) > div:nth-child(1) > span:nth-child(2)').text
-                time.sleep(timeout/10)
-            if verbose:
-                print('Parsing data stream...')
-            search_results_old = ''
-            while search_results!=search_results_old or search_results=='':
-                search_results_old = search_results
-                search_results = self.driver.find_element(By.CSS_SELECTOR, '.col-lg-10 > div:nth-child(2) > div:nth-child(4) > div:nth-child(1) > div:nth-child(1) > span:nth-child(2)').text
-                time.sleep(timeout/15)
-            return search_results
-        except:
+            time.sleep(timeout/10)
+            self.wait.until(EC.invisibility_of_element_located((By.CSS_SELECTOR, '#__next > div.row > div.col-lg-10 > div:nth-child(2) > div:nth-child(1) > div > button')))
+            search_results = self.driver.find_element(By.CSS_SELECTOR, '.col-lg-10 > div:nth-child(2) > div:nth-child(4) > div:nth-child(1) > div:nth-child(1) > span:nth-child(2)').text
+            
+            
+            num_sources = self.driver.find_elements(By.CSS_SELECTOR, "#__next > div.row > div.col-lg-10 > div:nth-child(2) > div.col-lg-4.col-xl-4 > div:nth-child(1) > div > *")
+            
+            sources = []
+            for source in num_sources[1:-1]:
+                link = source.find_element(By.CSS_SELECTOR, 'a.mb-0')
+                sources.append(link.get_attribute("href"))
+            return search_results, sources
+        except Exception as e:
             print('Search Timeout error. Time exceeded timeout')
-    
+            print(e)    
     #search_stream function will not be implemented
 
     #Debug function to test average time to fetch
